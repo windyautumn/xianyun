@@ -64,16 +64,10 @@ export default {
         handleLoginSubmit(){
            this.$refs['form'].validate(async v=>{
                if(v){
-                 var res = await this.$axios({
-                       url:"/accounts/login",
-                       method:'POST',
-                       data:this.form
-                   })
+                const res = await this.$store.dispatch('user/login',this.form)
                   if(res.status === 200){
-                      const {data} = res
-                      console.log(data)
-                      this.$store.commit("user/setUserInfo", data);
-                      this.$router.push('/')
+                    this.$message.success("登录成功");
+                    this.$router.push('/')
                   }
                }
            })

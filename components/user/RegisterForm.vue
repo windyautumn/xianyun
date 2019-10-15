@@ -105,13 +105,10 @@ export default {
                 return;
             }
 
-            const res = await this.$axios({
-                url:'/captchas',
-                method:'POST',
-                data:{tel:this.form.username}
-            })
+            const res = await this.$store.dispatch('user/sendCaptchas',this.form.username)
+            console.log(res)
             const {code} = res.data
-              this.$message.success(`当前的手机验证码是：${code}`);
+            this.$message.success(`当前的手机验证码是：${code}`);
             
         },
 
@@ -121,16 +118,10 @@ export default {
             this.$refs.form.validate(async v=>{
                 if(v){
                     const {checkPassword,...props}=this.form
-                    const res = await this.$axios({
-                        url: "/accounts/register",
-                        method: "POST",
-                        data: props
-                    })
+                    const res = await this.$store.dispatch('user/register',props)
                     if(res.status === 200){
 					   this.$message.success("注册成功");
                        this.$router.push("/")
-					   const data = res.data;
-                       this.$store.commit("user/setUserInfo", data);
                     }
                 }
             })
