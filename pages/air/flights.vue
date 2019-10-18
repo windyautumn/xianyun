@@ -5,7 +5,7 @@
             <!-- 顶部过滤列表 -->
             <div class="flights-content">
                 <!-- 过滤条件 -->
-                <FlightsFilters :data="flightsData"/>
+                <FlightsFilters :data="cachaFlightsData" @handleFilter="handleFilter"/>
                 
                 <!-- 航班头部布局 -->
                 <FlightsListHead/>
@@ -20,7 +20,7 @@
                 :page-sizes="[5, 10, 15, 20]"
                 :page-size="pageSize"
                 layout="total, sizes, prev, pager, next, jumper"
-                :total="flightsData.total"
+                :total="total"
                 v-if="flightsData.flights.length">
                 </el-pagination>
 
@@ -31,9 +31,7 @@
             </div>
 
             <!-- 侧边栏 -->
-            <div class="aside">
-                <!-- 侧边栏组件 -->
-            </div>
+            <FlightsAside/>
         </el-row>
     </section>
 </template>
@@ -43,6 +41,8 @@
 import FlightsListHead from '@/components/air/flightsListHead'
 import FlightsItem from "@/components/air/flightsItem"
 import FlightsFilters from "@/components/air/flightsFilters"
+import FlightsAside from "@/components/air/flightsAside"
+
 
 
 export default {
@@ -55,13 +55,33 @@ export default {
             },
             pageIndex:1,
             pageSize:5,
-            loading:true
+            loading:true,
+            cachaFlightsData:{
+                flights: [],
+                info: {},
+                options: {}
+            },
+            total:0
         }
     },
     components:{
         FlightsListHead,
         FlightsItem,
-        FlightsFilters
+        FlightsFilters,
+        FlightsAside
+    },
+    watch:{
+        $route(){
+         this.$axios({
+            url:'airs',
+            params:this.$route.query
+        }).then(res=>{
+            this.flightsData = res.data
+            this.cachaFlightsData = {...res.data}
+            this.total = res.data.total
+            this.loading = false
+        })
+        }
     },
     methods:{
         handleSizeChange(val){
@@ -69,6 +89,11 @@ export default {
         },
         handleCurrentChange(val){
             this.pageIndex = val
+        },
+        handleFilter(arr){
+            this.flightsData.flights = arr
+            this.pageIndex = 1
+            this.total = arr.length
         }
     },
     mounted(){
@@ -76,8 +101,9 @@ export default {
             url:'airs',
             params:this.$route.query
         }).then(res=>{
-            console.log(res.data)
             this.flightsData = res.data
+            this.cachaFlightsData = {...res.data}
+            this.total = res.data.total
             this.loading = false
         })
     },

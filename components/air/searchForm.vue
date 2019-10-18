@@ -85,7 +85,7 @@ export default {
         // tab切换时触发
         handleSearchTab(item, index){
             if(index === 1){
-                this.$alert('暂未开通往返车票', '提示', {
+                this.$alert('暂未开通往返机票', '提示', {
                 confirmButtonText: '确定',
                  type: 'warning',
                 // callback: action => {
@@ -187,6 +187,7 @@ export default {
                path:'/air/flights',
                query:this.form
            })
+           this.$store.commit('air/setHistory',this.form)
         }
     },
     mounted() {

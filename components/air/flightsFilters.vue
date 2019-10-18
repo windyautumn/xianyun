@@ -24,7 +24,7 @@
                     v-for="(item,index) in data.options.flightTimes"
                     :key="index"
                     :label="`${item.from}:00 - ${item.to}:00`"
-                    value="1"
+                    :value="`${item.from},${item.to}`"
                     >
                     </el-option>
                 </el-select>
@@ -88,31 +88,49 @@ export default {
     methods: {
         // 选择机场时候触发
         handleAirport(value){
-            
+            const arr = this.data.flights.filter(v=>{
+                return v.org_airport_name === value
+            })
+            this.$emit('handleFilter',arr)
         },
 
         // 选择出发时间时候触发
         handleFlightTimes(value){
-            
+            const arr = value.split(',')
+            const arr1 = this.data.flights.filter(v=>{
+                const start = v.dep_time.split(":")
+                return +start[0] >= +arr[0] && +start[0] < +arr[1]
+            })
+            this.$emit('handleFilter',arr1)
         },
 
          // 选择航空公司时候触发
         handleCompany(value){
-            
+            const arr = this.data.flights.filter(v=>{
+                return v.airline_name ===value
+            })
+            this.$emit('handleFilter',arr)
         },
 
          // 选择机型时候触发
         handleAirSize(value){
-           
+           const arr = this.data.flights.filter(v=>{
+                return v.plane_size ===value
+            })
+            this.$emit('handleFilter',arr)
         },
         
         // 撤销条件时候触发
         handleFiltersCancel(){
-            
+            this.airport= ""       // 机场
+            this.flightTimes= ""    // 出发时间
+            this.company= ""       // 航空公司
+            this.airSize= ""        // 机型大小
+            this.$emit('handleFilter',this.data.flights)
         },
     },
     mounted(){
-        console.log(this.data)
+      
     }
 }
 </script>

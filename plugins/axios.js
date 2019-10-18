@@ -10,5 +10,8 @@ export default (context) => {
         if(statusCode === 400){
             Message.error(message)
         }
+        if(statusCode === 403){
+            context.redrect('/user/login')
+        }
     })
 } 
