@@ -71,6 +71,7 @@
                 <el-button type="warning" class="submit" @click="handleSubmit">提交订单</el-button>
             </div>
         </div>
+        <span v-show="false">{{allPrice}}</span>
     </div>
 </template>
 
@@ -101,6 +102,8 @@ export default {
                 username:'',
                 id:''
             })
+            this.detail.number = this.users.length
+            this.$emit('getDetail',this.detail)
         },
         
         // 移除乘机人
@@ -147,7 +150,29 @@ export default {
                 }
             }).then(res=>{
                 console.log(res.data)
+                const {data, message} = res.data;
+                this.$message.success(message)
+                this.$router.push({
+                    path: '/air/pay',
+                    query: {
+                        id: data.id
+                    }
+                })
             })
+        }
+    },
+    computed:{
+        allPrice(){
+            if(!this.detail.seat_infos) return;
+            let price = 0
+            price += this.detail.seat_infos.org_settle_price;
+            price += this.detail.airport_tax_audlet;
+            price += this.insurances.length * 30
+            price *= this.users.length;
+            this.$emit("getAllPrice", price);
+
+            
+            return price
         }
     },
     mounted(){
@@ -159,6 +184,8 @@ export default {
             }
         }).then(res => {
             this.detail = res.data
+            this.detail.number = this.users.length
+            this.$emit('getDetail',this.detail)
         })
     }
     

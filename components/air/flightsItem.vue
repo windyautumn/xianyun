@@ -63,6 +63,7 @@
 </template>
 
 <script>
+import { computeTime}  from '@/utils/utils.js'
 export default {
     data(){
         return{
@@ -79,14 +80,14 @@ export default {
     },
     computed:{
         time(){
-            const arrTime = this.item.arr_time.split(':')
-            const depTime = this.item.dep_time.split(':')
-            const end = arrTime[0]*60 + +arrTime[1]
-            const start = depTime[0]*60 + +depTime[1]
-            let allTime = end - start
-            if(allTime < 0) allTime += 24*60
+            // const arrTime = this.item.arr_time.split(':')
+            // const depTime = this.item.dep_time.split(':')
+            // const end = arrTime[0]*60 + +arrTime[1]
+            // const start = depTime[0]*60 + +depTime[1]
+            // let allTime = end - start
+            // if(allTime < 0) allTime += 24*60
 
-            return `${ Math.floor(allTime / 60)}小时${allTime % 60}分`
+            return computeTime(this.item.arr_time,this.item.dep_time)
         }
     }
 }
