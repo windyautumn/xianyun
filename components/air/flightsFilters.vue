@@ -8,7 +8,7 @@
                 {{data.info.departDate}}
             </el-col>
             <el-col :span="4">
-                <el-select size="mini" v-model="airport" placeholder="起飞机场" @change="handleAirport">
+                <el-select size="mini" v-model="flights.airport" placeholder="起飞机场">
                     <el-option
                     v-for="(item,index) in data.options.airport"
                     :key="index"
@@ -19,7 +19,7 @@
                 </el-select>
             </el-col>
             <el-col :span="4">
-                <el-select size="mini" v-model="flightTimes"  placeholder="起飞时间" @change="handleFlightTimes">
+                <el-select size="mini" v-model="flights.flightTimes"  placeholder="起飞时间" >
                     <el-option
                     v-for="(item,index) in data.options.flightTimes"
                     :key="index"
@@ -30,7 +30,7 @@
                 </el-select>
             </el-col>
             <el-col :span="4">
-                <el-select size="mini" v-model="company"  placeholder="航空公司" @change="handleCompany">
+                <el-select size="mini" v-model="flights.company"  placeholder="航空公司" >
                     <el-option
                     v-for="(item,index) in data.options.company"
                     :key="index"
@@ -40,7 +40,7 @@
                 </el-select>
             </el-col>
             <el-col :span="4">
-                <el-select size="mini" v-model="airSize" placeholder="机型" @change="handleAirSize">
+                <el-select size="mini" v-model="flights.airSize" placeholder="机型">
                     <el-option
                     v-for="(item,index) in sizeOptions"
                     :key="index"
@@ -68,10 +68,12 @@
 export default {
     data(){
         return {
-            airport: "",        // 机场
-            flightTimes: "",    // 出发时间
-            company: "",        // 航空公司
-            airSize: "",        // 机型大小
+            flights:{
+                airport: "",        // 机场
+                flightTimes: "",    // 出发时间
+                company: "",        // 航空公司
+                airSize: "",        // 机型大小
+            },
             sizeOptions:[
                 {name: "大", size: "L"},
                 {name: "中", size: "M"},
@@ -85,41 +87,40 @@ export default {
             default: {}
         }
     },
+    watch:{
+        flights:{
+            deep:true,
+            handler(){
+                var arr = this.data.flights.filter(v=>{
+                    let flag = true
+                    if(this.flights.airport && this.flights.airport !== v.org_airport_name){
+                        flag = false
+                    }
+                    if(this.flights.flightTimes){
+                        const arr = this.flights.flightTimes.split(',')
+                        const start = v.dep_time.split(":")[0]
+                        if(start < +arr[0] || start >= +arr[1]){
+                            flag = false;
+                        }
+                    }
+                    if(this.flights.company && this.flights.company !== v.airline_name){
+                        flag = false
+                    }
+                    if(this.flights.airSize && this.flights.airSize !== v.plane_size){
+                        flag = false
+                    }
+                    return flag
+                })
+                this.$emit('handleFilter',arr)
+            }
+        }
+    },
     methods: {
         // 选择机场时候触发
-        handleAirport(value){
-            const arr = this.data.flights.filter(v=>{
-                return v.org_airport_name === value
-            })
-            this.$emit('handleFilter',arr)
-        },
-
         // 选择出发时间时候触发
-        handleFlightTimes(value){
-            const arr = value.split(',')
-            const arr1 = this.data.flights.filter(v=>{
-                const start = v.dep_time.split(":")
-                return +start[0] >= +arr[0] && +start[0] < +arr[1]
-            })
-            this.$emit('handleFilter',arr1)
-        },
 
          // 选择航空公司时候触发
-        handleCompany(value){
-            const arr = this.data.flights.filter(v=>{
-                return v.airline_name ===value
-            })
-            this.$emit('handleFilter',arr)
-        },
-
          // 选择机型时候触发
-        handleAirSize(value){
-           const arr = this.data.flights.filter(v=>{
-                return v.plane_size ===value
-            })
-            this.$emit('handleFilter',arr)
-        },
-        
         // 撤销条件时候触发
         handleFiltersCancel(){
             this.airport= ""       // 机场
